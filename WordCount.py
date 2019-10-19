@@ -3,11 +3,25 @@ import sublime_plugin
 import re
 
 settings = None
+LATEX_DEFAULTS = {
+    'exclude_abstract': True, 
+    'exclude_headers': True,
+    'markup_commands': ['text\\w+', 'uppercase', 'uline', 'emph'],
+    'exclude_appendices': True,
+    'exclude_footnotes': True
+}
 
 
 def load_settings():
     global settings
     settings = sublime.load_settings("LaTeXWordCount.sublime-settings")
+
+
+def load_latex_settings(settings):
+    temp_settings = dict()
+    for conf, default_value in LATEX_DEFAULTS.items():
+        temp_settings[conf] = settings.get(conf, default_value)
+    return temp_settings
 
 
 def plugin_loaded():
@@ -65,7 +79,7 @@ latex_command = re.compile(
 @custom_wordcount("LaTeX")
 def wordcount_latex(text):
     global settings
-    latex_settings = settings.get("LaTeX")
+    latex_settings = load_latex_settings(settings)
 
     # strip latex comments
     text = latex_comment.sub(" ", text)
